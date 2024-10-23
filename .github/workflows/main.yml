@@ -13,10 +13,13 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v3
 
-      - name: Upload HTML test report
+      - name: Run Lint
+        run: ./gradlew lint
+
+      - name: Upload Lint HTML Report
         uses: actions/upload-artifact@v3
         with:
-          name: lint.html
+          name: lint-report
           path: app/build/reports/lint-results-debug.html
 
   unit-test:
@@ -26,18 +29,17 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v3
 
-      - name: Run tests
+      - name: Run Unit Tests
         run: ./gradlew test
 
-      - name: Upload test report
+      - name: Upload Unit Test Report
         uses: actions/upload-artifact@v3
         with:
-          name: unit_test_report
+          name: unit-test-report
           path: app/build/reports/tests/testDebugUnitTest/
 
   package:
     needs: [unit-test]
-    name: Generate APK
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the code
@@ -49,7 +51,7 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
 
-      - name: Build debug APK
+      - name: Build Debug APK
         run: ./gradlew assembleDebug --stacktrace
 
       - name: Upload APK
@@ -78,17 +80,23 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: expense-manager.apk
+          path: app/build/outputs/apk/debug/app-debug.apk
 
-      - name: Create Android emulator
+      - name: Create Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
           target: default
           arch: x86_64
           profile: Nexus 6
+          script: |
+            adb wait-for-device
+            adb shell input keyevent 82
+            adb install app/build/outputs/apk/debug/app-debug.apk
+            ./gradlew connectedAndroidTest
 
-      - name: Install APK on Emulator
-        run: adb install app-debug.apk
-
-      - name: Run Android Instrumented Tests
-        run: ./gradlew connectedAndroidTest
+      - name: Upload Instrumentation Test Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: instrumentation-test-report
+          path: app/build/reports/androidTests/connected/
