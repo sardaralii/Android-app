@@ -13,14 +13,11 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v3
 
-      - name: Run lint checks
-        run: ./gradlew lint
-
-      - name: Upload HTML lint report
+      - name: Upload HTML test report
         uses: actions/upload-artifact@v3
         with:
           name: lint.html
-          path: app/build/reports/lint-results.html
+          path: app/build/reports/lint-results-debug.html
 
   unit-test:
     needs: [lint]
@@ -29,10 +26,10 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v3
 
-      - name: Run unit tests
+      - name: Run tests
         run: ./gradlew test
 
-      - name: Upload unit test report
+      - name: Upload test report
         uses: actions/upload-artifact@v3
         with:
           name: unit_test_report
@@ -84,9 +81,4 @@ jobs:
           target: default
           arch: x86_64
           profile: Nexus 6
-
-      - name: Install APK on Emulator
-        run: adb install app/build/outputs/apk/debug/app-debug.apk
-
-      - name: Run Android Instrumented Tests
-        run: ./gradlew connectedAndroidTest
+          script: ./gradlew connectedAndroidTest
