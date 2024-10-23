@@ -46,16 +46,14 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v3
 
-      - name: Start emulator and run tests
+      - name: Set up the Android emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
           target: default
-          script: ./gradlew connectedAndroidTest
-          disable-animations: true
-          emulator-options: -no-boot-anim
-          boot-timeout: 600
-          headless: true
+          script: |
+            ./gradlew connectedAndroidTest
+            adb install app/build/outputs/apk/debug/app-debug.apk
 
       - name: Upload instrumentation test report
         uses: actions/upload-artifact@v3
