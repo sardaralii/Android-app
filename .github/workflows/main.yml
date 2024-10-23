@@ -81,4 +81,8 @@ jobs:
           target: default
           arch: x86_64
           profile: Nexus 6
-          script: ./gradlew connectedAndroidTest
+          script: |
+            # Install the APK on the emulator
+            adb install app/build/outputs/apk/debug/app-debug.apk
+            # Run the connected tests
+            ./gradlew connectedAndroidTest
