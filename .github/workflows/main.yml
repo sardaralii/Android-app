@@ -1,5 +1,4 @@
 name: CI
-
 on:
   push:
     branches: [ master ]
@@ -14,14 +13,14 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v3
 
-      - name: Run lint checks
-        run: ./gradlew lint
+      - name: Run Lint
+        run: ./gradlew lint --continue --info # Run lint with detailed output
 
       - name: Upload lint report
         uses: actions/upload-artifact@v3
         with:
           name: lint-report
-          path: app/build/reports/lint-results-debug.html
+          path: app/build/reports/lint-results.xml
 
   unit-test:
     needs: [lint]
@@ -30,35 +29,32 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v3
 
-      - name: Run unit tests
+      - name: Run tests
         run: ./gradlew test
 
-      - name: Upload test results
+      - name: Upload test report
         uses: actions/upload-artifact@v3
         with:
-          name: unit-test-report
+          name: unit_test_report
           path: app/build/reports/tests/testDebugUnitTest/
 
   instrumentation-test:
     needs: [unit-test]
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - name: Checkout the code
         uses: actions/checkout@v3
 
-      - name: Set up the Android emulator
+      - name: Run espresso tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
-          target: default
-          script: |
-            ./gradlew connectedAndroidTest
-            adb install app/build/outputs/apk/debug/app-debug.apk
+          script: ./gradlew connectedCheck
 
-      - name: Upload instrumentation test report
+      - name: Upload test report
         uses: actions/upload-artifact@v3
         with:
-          name: instrumentation-test-report
+          name: instrumentation_test_report
           path: app/build/reports/androidTests/connected/
 
   static-code-analysis:
@@ -74,10 +70,11 @@ jobs:
           java-version: '11'
 
       - name: Run static code analysis
-        run: ./gradlew check
+        run: ./gradlew check --info # Run with detailed output
 
   package:
     needs: [static-code-analysis]
+    name: Generate APK
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the code
@@ -88,11 +85,11 @@ jobs:
         with:
           java-version: '1.8'
 
-      - name: Build APK
+      - name: Build debug APK
         run: ./gradlew assembleDebug --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
-          name: app-debug.apk
+          name: expense-manager.apk
           path: app/build/outputs/apk/debug/app-debug.apk
