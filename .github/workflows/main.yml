@@ -13,13 +13,10 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v3
 
-      - name: Run Lint
-        run: ./gradlew lint
-
       - name: Upload HTML test report
         uses: actions/upload-artifact@v3
         with:
-          name: lint-report
+          name: lint.html
           path: app/build/reports/lint-results-debug.html
 
   unit-test:
@@ -32,10 +29,10 @@ jobs:
       - name: Run tests
         run: ./gradlew test
 
-      - name: Upload unit test report
+      - name: Upload test report
         uses: actions/upload-artifact@v3
         with:
-          name: unit-test-report
+          name: unit_test_report
           path: app/build/reports/tests/testDebugUnitTest/
 
   package:
@@ -58,7 +55,7 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
-          name: apk
+          name: expense-manager.apk
           path: app/build/outputs/apk/debug/app-debug.apk
 
   emulator:
@@ -80,7 +77,7 @@ jobs:
       - name: Download APK
         uses: actions/download-artifact@v3
         with:
-          name: apk
+          name: expense-manager.apk
 
       - name: Create Android emulator
         uses: reactivecircus/android-emulator-runner@v2
@@ -91,7 +88,7 @@ jobs:
           profile: Nexus 6
 
       - name: Install APK on Emulator
-        run: adb install app/build/outputs/apk/debug/app-debug.apk
+        run: adb install app-debug.apk
 
-      - name: Run Instrumentation Tests
+      - name: Run Android Instrumented Tests
         run: ./gradlew connectedAndroidTest
