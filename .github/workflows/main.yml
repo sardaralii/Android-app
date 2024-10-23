@@ -43,11 +43,11 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v3
 
-      - name: Set up JDK 8
+      - name: Set up JDK 11
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '8'
+          java-version: '11'
 
       - name: Build debug APK
         run: ./gradlew assembleDebug --stacktrace
@@ -65,17 +65,17 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v3
 
-      - name: Set up JDK 8
+      - name: Set up JDK 11
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '8'
+          java-version: '11'
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v2  # Corrected the setup Android action
+        uses: android-actions/setup-android@v2
 
       - name: Create Android emulator
-        uses: reactivecircus/android-emulator-runner@v2  # Corrected the version to v2
+        uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
           target: default
